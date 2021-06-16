@@ -1,0 +1,3 @@
+*.swp
+.terragrunt-cache
+.terraform*
