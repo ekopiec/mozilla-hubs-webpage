@@ -6,6 +6,6 @@ terraform {
 }
 
 inputs = {
-  webpage_domain = "takehome.lizkopiec.com"
+  webpage_domain = "takehome-uat.lizkopiec.com"
   webpage_index = "index.html"
 }
