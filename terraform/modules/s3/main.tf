@@ -25,7 +25,7 @@ resource "aws_s3_bucket_policy" "pub_ro" {
   })
 }
 
-resource "aws_s3_bucket_object" "index.html" {
+resource "aws_s3_bucket_object" "index_html" {
   bucket = aws_s3_bucket.webpage.id
   key = var.webpage_index
   content = var.webpage_index_content
