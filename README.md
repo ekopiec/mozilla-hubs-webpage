@@ -7,7 +7,7 @@ Completed By: Liz Kopiec
 For my solution to this take home assesment I chose to use Terraform and Terragrunt to provision the AWS services needed to host a static webpage. I also wanted to focus on the 'secure' aspect of requirements so I chose to host a simple static webpage in S3 and include AWS services to secure this webpage and the bucket it's housed in.
 
 Some decisions I made while creating this solution:
-- To manually create IAM users/groups/policies, the S3 bucket to house the Terraform state file and the DynamoDB
+- To manually create IAM users/groups/policies to run the Terraform, the S3 bucket to house the Terraform state file and the DynamoDB
 - To showcase the use of Terragrunt's ability to use git tags in the Terraform module source by creating lower and production environments where the lower environemnt is using a tagged commit  further ahead of the production environment to simulate how changes would be tested before deployed.
 - To write about how I would properly provision IAM policies rather than implementing them, to save some time
 
