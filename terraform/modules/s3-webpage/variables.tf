@@ -5,7 +5,7 @@ variable "domain" {
 
 variable "subdomain" {
   type = string
-  description = "subdomain without . or second level domain"
+  description = "subdomain without trailing . or second level domain"
 }
 
 variable "webpage_index" {
