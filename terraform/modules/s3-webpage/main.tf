@@ -37,8 +37,8 @@ resource "aws_s3_bucket_object" "index_html" {
   content_type = "text/html"
 }
 
-#Create Route53 zone for second level domain
-resource "aws_route53_zone" "main" {
+#Retrieve Route53 zone for second level domain
+data "aws_route53_zone" "main" {
   name = var.domain
 }
 
@@ -63,7 +63,7 @@ resource "aws_route53_record" "dns_cert_validation" {
   records = [each.value.record]
   ttl = 60
   type = each.value.type
-  zone_id = aws_route53_zone.main.zone_id
+  zone_id = data.aws_route53_zone.main.zone_id
 }
 
 #Create CloudFront Origin Access Identity
@@ -113,12 +113,11 @@ resource "aws_cloudfront_distribution" "s3_cdn" {
       restriction_type = "none"
     }
   }
-
 }
 
 #Create CNAME record
 resource "aws_route53_record" "dev-ns" {
-  zone_id = aws_route53_zone.main.zone_id
+  zone_id = data.aws_route53_zone.main.zone_id
   name = "${var.subdomain}.${var.domain}"
   type = "CNAME"
   ttl = "60"
