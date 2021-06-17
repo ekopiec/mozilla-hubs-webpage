@@ -16,7 +16,9 @@ resource "aws_s3_bucket_policy" "pub_ro" {
       {
         Sid = "PublicReadGetObject"
         Effect = "Allow"
-        Principal = "*"
+        "Principal": {
+          "AWS": aws_cloudfront_origin_access_identity.cf_identity.id
+        }
         Action = "s3:GetObject"
         Resource = [
           aws_s3_bucket.webpage_bucket.arn,
