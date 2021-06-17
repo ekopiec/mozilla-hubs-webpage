@@ -6,5 +6,6 @@ terraform {
 }
 
 inputs = {
-  webpage_domain = "takehome-uat.lizkopiec.com"
+  domain = "lizkopiec.com"
+  subdomain = "takehome-uat"
 }
