@@ -35,18 +35,9 @@ resource "aws_s3_bucket_object" "index_html" {
   content_type = "text/html"
 }
 
-#Create Route53 zone for second level domain, if it doesn't exist.
+#Create Route53 zone for second level domain
 resource "aws_route53_zone" "main" {
   name = var.domain
-}
-
-#Create CNAME record
-resource "aws_route53_record" "dev-ns" {
-  zone_id = aws_route53_zone.main.zone_id
-  name = "${var.subdomain}.${var.domain}"
-  type = "CNAME"
-  ttl = "60"
-  records = [aws_s3_bucket.webpage_bucket.bucket_domain_name]
 }
 
 #Create SSL cert
@@ -71,4 +62,63 @@ resource "aws_route53_record" "dns_cert_validation" {
   ttl = 60
   type = each.value.type
   zone_id = aws_route53_zone.main.zone_id
+}
+
+#Create CloudFront Origin Access Identity
+resource "aws_cloudfront_origin_access_identity" "cf_identity" {
+}
+
+#Create CloudFront distribution
+resource "aws_cloudfront_distribution" "s3_cdn" {
+  enabled = true
+  default_root_object = var.webpage_index
+  aliases = ["${var.subdomain}.${var.domain}"]
+  
+
+  origin {
+    domain_name = aws_s3_bucket.webpage_bucket.bucket_domain_name
+    origin_id = aws_s3_bucket.webpage_bucket.id #ID will always be a unique value
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.cf_identity.cloudfront_access_identity_path
+    }
+  }
+
+  default_cache_behavior {
+    target_origin_id = aws_s3_bucket.webpage_bucket.id
+    allowed_methods = ["GET", "HEAD"]
+    cached_methods = ["GET", "HEAD"]
+    viewer_protocol_policy = "https-only"
+    
+    forwarded_values {
+      cookies {
+        forward = "all"
+      }
+      query_string = false
+    }
+
+    min_ttl = 60 #Only allow refresh of cached objects every 60 sec
+    default_ttl = 14400 #Refresh content every 4h
+    max_ttl = 43200 #Refresh cached objects after 12h, even if other headers such as cache-control are set
+  }
+  
+  viewer_certificate  {
+    acm_certificate_arn = aws_acm_certificate.ssl_cert.arn
+    ssl_support_method = "sni-only"
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+}
+
+#Create CNAME record
+resource "aws_route53_record" "dev-ns" {
+  zone_id = aws_route53_zone.main.zone_id
+  name = "${var.subdomain}.${var.domain}"
+  type = "CNAME"
+  ttl = "60"
+  records = [aws_cloudfront_distribution.s3_cdn.domain_name]
 }
