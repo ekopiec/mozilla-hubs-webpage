@@ -1,6 +1,11 @@
-variable "webpage_domain" {
-  description = "domainname for webpage and bucket name"
+variable "domain" {
   type = string
+  description = "second level domain with TLD"
+}
+
+variable "subdomain" {
+  type = string
+  description = "subdomain without . or second level domain"
 }
 
 variable "webpage_index" {

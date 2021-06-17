@@ -1,5 +1,5 @@
-resource "aws_s3_bucket" "webpage" {
-  bucket = var.webpage_domain
+resource "aws_s3_bucket" "webpage_bucket" {
+  bucket = "${var.subdomain}.${var.domain}"
   acl = "public-read"
   website {
     index_document = var.webpage_index
@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "webpage" {
 }
 
 resource "aws_s3_bucket_policy" "pub_ro" {
-  bucket = aws_s3_bucket.webpage.id
+  bucket = aws_s3_bucket.webpage_bucket.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -17,8 +17,8 @@ resource "aws_s3_bucket_policy" "pub_ro" {
         Principal = "*"
         Action    = "s3:GetObject"
         Resource = [
-          aws_s3_bucket.webpage.arn,
-          "${aws_s3_bucket.webpage.arn}/*",
+          aws_s3_bucket.webpage_bucket.arn,
+          "${aws_s3_bucket.webpage_bucket.arn}/*",
         ]
       },
     ]
@@ -26,8 +26,20 @@ resource "aws_s3_bucket_policy" "pub_ro" {
 }
 
 resource "aws_s3_bucket_object" "index_html" {
-  bucket = aws_s3_bucket.webpage.id
+  bucket = aws_s3_bucket.webpage_bucket.id
   key = var.webpage_index
   content = var.webpage_index_content
   content_type = "text/html"
+}
+
+resource "aws_route53_zone" "main" {
+  name = var.domain
+}
+
+resource "aws_route53_record" "dev-ns" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "${var.subdomain}.${var.domain}"
+  type    = "CNAME"
+  ttl     = "60"
+  records = [aws_s3_bucket.webpage_bucket.bucket_domain_name]
 }
