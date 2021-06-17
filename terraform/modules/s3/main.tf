@@ -1,3 +1,4 @@
+#Create S3 bucket to be used as a webpage
 resource "aws_s3_bucket" "webpage_bucket" {
   bucket = "${var.subdomain}.${var.domain}"
   acl = "public-read"
@@ -6,6 +7,7 @@ resource "aws_s3_bucket" "webpage_bucket" {
   }
 }
 
+#Create S3 bucket policy for access to bucket objects
 resource "aws_s3_bucket_policy" "pub_ro" {
   bucket = aws_s3_bucket.webpage_bucket.id
   policy = jsonencode({
@@ -25,6 +27,7 @@ resource "aws_s3_bucket_policy" "pub_ro" {
   })
 }
 
+#Create S3 bucket object for webpage index
 resource "aws_s3_bucket_object" "index_html" {
   bucket = aws_s3_bucket.webpage_bucket.id
   key = var.webpage_index
@@ -32,10 +35,12 @@ resource "aws_s3_bucket_object" "index_html" {
   content_type = "text/html"
 }
 
+#Create Route53 zone for second level domain, if it doesn't exist.
 resource "aws_route53_zone" "main" {
   name = var.domain
 }
 
+#Create CNAME record
 resource "aws_route53_record" "dev-ns" {
   zone_id = aws_route53_zone.main.zone_id
   name    = "${var.subdomain}.${var.domain}"
