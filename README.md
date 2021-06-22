@@ -1,6 +1,5 @@
 # Static S3 Webpage on AWS 
-Using Terraform and Terragrunt to create a secure static webpage in AWS for the Mozilla Hub's Team "Take Home Test".\
-Completed By: Liz Kopiec
+Using Terraform and Terragrunt to create a secure static webpage in AWS.
 
 ## Soulution Explanation
 ### Overview
